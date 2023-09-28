@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import loginImage from "../assets/image/login.svg";
 import { useForm, useWatch } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import loginImage from "../assets/image/login.svg";
 import { createUser } from "../redux/features/user/userSlice";
-import toast from "react-hot-toast";
 
 const Signup = () => {
   const { handleSubmit, register, control } = useForm();
@@ -12,7 +12,9 @@ const Signup = () => {
   const confirmPassword = useWatch({ control, name: "confirmPassword" });
   const navigate = useNavigate();
   const [disabled, setDisabled] = useState(true);
-  const { isError, error } = useSelector((state) => state.userSlice);
+  const { isError, error, isLoading, email } = useSelector(
+    (state) => state.userSlice
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -30,8 +32,15 @@ const Signup = () => {
   }, [password, confirmPassword]);
 
   useEffect(() => {
-    toast.error(error);
+    if (isError && error) {
+      toast.error(error);
+    }
   }, [isError, error]);
+  useEffect(() => {
+    if (!isLoading && email) {
+      navigate("/");
+    }
+  }, [isLoading, email]);
   const onSubmit = ({ name, email, password }) => {
     // Email Password signup
     dispatch(
@@ -120,6 +129,7 @@ const Signup = () => {
           </form>
         </div>
       </div>
+      <Toaster />
     </div>
   );
 };
